@@ -13,13 +13,14 @@ app = FastAPI(title="AI Todo API")
 # Initialize Groq client
 groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# CORS
+# CORS - Allow all origins for Vercel deployments
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # In-memory storage (replace with database later)
@@ -99,6 +100,10 @@ def delete_task(user_id: str, task_id: int):
     return {"message": "Task deleted"}
 
 # Chat endpoint
+@app.options("/chat")
+def chat_options():
+    return {"message": "OK"}
+
 @app.post("/chat")
 def chat(request: ChatRequest):
     try:
