@@ -105,12 +105,31 @@ export default function Dashboard() {
     setChatMessages(prev => [...prev, { role: 'user', content: userMessage }])
     setChatInput('')
     
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL
+    console.log('API URL:', apiUrl)
+    
+    if (!apiUrl) {
+      setChatMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Error: API URL not configured. Please check environment variables.' 
+      }])
+      return
+    }
+    
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat`, {
+      const response = await fetch(`${apiUrl}/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        mode: 'cors',
         body: JSON.stringify({ message: userMessage, tasks })
       })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
       
       const data = await response.json()
       setChatMessages(prev => [...prev, { role: 'assistant', content: data.response }])
@@ -142,7 +161,11 @@ export default function Dashboard() {
         })
       }
     } catch (error) {
-      setChatMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }])
+      console.error('Chat error:', error)
+      setChatMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please check if the backend is running.` 
+      }])
     }
   }
 
