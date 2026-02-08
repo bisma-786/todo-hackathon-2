@@ -49,7 +49,7 @@ export default function Dashboard() {
     if (savedTasks) {
       setTasks(JSON.parse(savedTasks))
     } else {
-      const defaultTask = [{ id: 1, title: 'Welcome to AI Todo!', description: 'Try adding your first task', completed: false, priority: 'Medium', category: 'Personal', dueDate: '', repeat: 'No Repeat' }]
+      const defaultTask: Task[] = [{ id: 1, title: 'Welcome to AI Todo!', description: 'Try adding your first task', completed: false, priority: 'Medium', category: 'Personal', dueDate: '', repeat: 'No Repeat' }]
       setTasks(defaultTask)
       localStorage.setItem('tasks', JSON.stringify(defaultTask))
     }
