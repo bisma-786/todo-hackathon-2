@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -102,10 +102,18 @@ def delete_task(user_id: str, task_id: int):
 # Chat endpoint
 @app.options("/chat")
 def chat_options():
-    return {"message": "OK"}
+    response = Response()
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
 
 @app.post("/chat")
-def chat(request: ChatRequest):
+def chat(request: ChatRequest, response: Response):
+    # Set CORS headers manually
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
     try:
         system_prompt = """You are a helpful AI assistant for a todo app. Help users manage their tasks naturally.
 
