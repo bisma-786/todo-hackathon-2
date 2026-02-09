@@ -87,10 +87,11 @@ Be brief, friendly, and natural. Use emojis occasionally."""},
         updated_task = None
         
         # Detect mark as complete intent
-        if any(word in message_lower for word in ["mark", "complete", "done", "finish"]) and "as" in message_lower:
+        if any(word in message_lower for word in ["mark", "complete", "done", "finish"]):
             for t in request.tasks:
                 title_lower = t.get('title', '').lower()
-                if title_lower in message_lower and title_lower != "welcome to ai todo!":
+                # Check if task title is in message
+                if title_lower in message_lower and title_lower != "welcome to ai todo!" and not t.get('completed', False):
                     action = "complete_task"
                     task_id = t.get('id')
                     updated_task = {
@@ -105,11 +106,11 @@ Be brief, friendly, and natural. Use emojis occasionally."""},
                     break
         
         # Detect rename/update task intent
-        elif any(word in message_lower for word in ["rename", "change", "update", "edit"]) and " to " in message_lower:
-            parts = message_lower.split(" to ")
-            if len(parts) == 2:
-                old_part = parts[0]
-                new_title = request.message.split(" to ")[1].strip().strip('"\'.,!?')
+        elif " to " in message_lower and any(word in message_lower for word in ["rename", "change", "update", "edit"]):
+            parts = request.message.split(" to ")
+            if len(parts) >= 2:
+                old_part = parts[0].lower()
+                new_title = " to ".join(parts[1:]).strip().strip('"\'.,!?')
                 
                 for t in request.tasks:
                     title_lower = t.get('title', '').lower()
