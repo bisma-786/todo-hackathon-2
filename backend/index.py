@@ -88,22 +88,35 @@ Be brief, friendly, and natural. Use emojis occasionally."""},
         
         # Detect mark as complete intent
         if any(word in message_lower for word in ["mark", "complete", "done", "finish"]):
+            # Find best matching task
+            best_match = None
+            max_match_length = 0
+            
             for t in request.tasks:
                 title_lower = t.get('title', '').lower()
-                # Check if task title is in message
-                if title_lower in message_lower and title_lower != "welcome to ai todo!" and not t.get('completed', False):
-                    action = "complete_task"
-                    task_id = t.get('id')
-                    updated_task = {
-                        "title": t.get('title'),
-                        "description": t.get('description', ''),
-                        "completed": True,
-                        "priority": t.get('priority', 'Medium'),
-                        "category": t.get('category', 'Personal'),
-                        "dueDate": t.get('dueDate', ''),
-                        "repeat": t.get('repeat', 'No Repeat')
-                    }
-                    break
+                if title_lower == "welcome to ai todo!" or t.get('completed', False):
+                    continue
+                
+                # Check if any part of task title is in message
+                words = title_lower.split()
+                match_count = sum(1 for word in words if word in message_lower)
+                
+                if match_count > max_match_length:
+                    max_match_length = match_count
+                    best_match = t
+            
+            if best_match and max_match_length > 0:
+                action = "complete_task"
+                task_id = best_match.get('id')
+                updated_task = {
+                    "title": best_match.get('title'),
+                    "description": best_match.get('description', ''),
+                    "completed": True,
+                    "priority": best_match.get('priority', 'Medium'),
+                    "category": best_match.get('category', 'Personal'),
+                    "dueDate": best_match.get('dueDate', ''),
+                    "repeat": best_match.get('repeat', 'No Repeat')
+                }
         
         # Detect rename/update task intent
         elif " to " in message_lower and any(word in message_lower for word in ["rename", "change", "update", "edit"]):
