@@ -151,7 +151,7 @@ export default function Dashboard() {
         })
       }
       
-      if (data.action === 'update_task' && data.task_id && data.updated_task) {
+      if ((data.action === 'update_task' || data.action === 'complete_task') && data.task_id && data.updated_task) {
         setTasks(prev => {
           const updated = prev.map(t => 
             t.id === data.task_id ? { ...data.updated_task, id: t.id } : t
